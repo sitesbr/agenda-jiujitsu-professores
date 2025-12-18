@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alliance Schedule App</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #0f0f0f;
+            --bg-card: #1a1a1a;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --border-color: #333333;
+            --accent: #ffffff;
+            
+            /* Cores das Modalidades */
+            --color-kids: #ff9f43;
+            --color-nogi: #ff6b6b;
+            --color-iniciante: #1dd1a1;
+            --color-inter: #54a0ff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding-bottom: 40px;
+        }
+
+        /* Cabeçalho com efeito de vidro (Glassmorphism) */
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 15, 15, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 20px 20px 10px 20px;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+        }
+
+        .brand {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .brand span { color: var(--text-muted); font-weight: 400; font-size: 0.9rem; display: block; margin-top: 4px; letter-spacing: 1px;}
+
+        /* Container do Seletor */
+        .controls {
+            padding: 20px;
+        }
+
+        .custom-select-wrapper {
+            position: relative;
+        }
+
+        select {
+            width: 100%;
+            appearance: none;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2em;
+        }
+
+        select:focus {
+            border-color: var(--text-muted);
+        }
+
+        /* Card de Aula */
+        .day-container {
+            padding: 0 20px;
+        }
+
+        .day-card {
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .day-card.active { display: block; }
+
+        .date-header {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        .class-item {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid transparent;
+            transition: transform 0.2s;
+        }
+        
+        .class-item:active {
+            transform: scale(0.98);
+            background: #252525;
+        }
+
+        .class-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .class-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        /* Cores dos Badges */
+        .bg-kids { background: rgba(255, 159, 67, 0.15); color: var(--color-kids); }
+        .bg-nogi { background: rgba(255, 107, 107, 0.15); color: var(--color-nogi); }
+        .bg-iniciante { background: rgba(29, 209, 161, 0.15); color: var(--color-iniciante); }
+        .bg-inter { background: rgba(84, 160, 255, 0.15); color: var(--color-inter); }
+
+        .class-id {
+            font-family: monospace;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Footer decorativo */
+        .footer-line {
+            width: 40px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            margin: 40px auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="brand">Alliance<br><span>Guarulhos</span></h1>
+    </header>
+
+    <div class="controls">
+        <div class="custom-select-wrapper">
+            <select id="daySelect">
+                <option value="" disabled selected>Selecionar data...</option>
+                <option value="d08">Segunda, 08/12</option>
+                <option value="d09">Terça, 09/12</option>
+                <option value="d10">Quarta, 10/12</option>
+                <option value="d11">Quinta, 11/12</option>
+                <option value="d12">Sexta, 12/12</option>
+                <option value="d13">Sábado, 13/12</option>
+                <option value="d15">Segunda, 15/12</option>
+                <option value="d16">Terça, 16/12</option>
+                <option value="d17">Quarta, 17/12</option>
+                <option value="d26">Sexta, 26/12</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="day-container">
+        
+        <div id="d08" class="day-card">
+            <div class="date-header">Segunda, 08</div>
+            
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-iniciante">Gi</span>
+                    <span class="class-name">Iniciante</span>
+                </div>
+                <div class="class-id">#01</div>
+            </div>
+
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-inter">Gi</span>
+                    <span class="class-name">Intermediário</span>
+                </div>
+                <div class="class-id">#01</div>
+            </div>
+
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-kids">Infantil</span>
+                    <span class="class-name">Kids 2 & 3</span>
+                </div>
+                <div class="class-id">#01</div>
+            </div>
+        </div>
+
+        <div id="d09" class="day-card">
+            <div class="date-header">Terça, 09</div>
+            
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-inter">Gi</span>
+                    <span class="class-name">Intermediário</span>
+                </div>
+                <div class="class-id">#02</div>
+            </div>
+
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-iniciante">Gi</span>
+                    <span class="class-name">Iniciante</span>
+                </div>
+                <div class="class-id">#02</div>
+            </div>
+
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-nogi">Sem Kimono</span>
+                    <span class="class-name">NO-GI</span>
+                </div>
+                <div class="class-id">#01</div>
+            </div>
+             <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-kids">Infantil</span>
+                    <span class="class-name">Kids 1</span>
+                </div>
+                <div class="class-id">#01</div>
+            </div>
+        </div>
+
+        <div id="d10" class="day-card">
+            <div class="date-header">Quarta, 10</div>
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-iniciante">Gi</span>
+                    <span class="class-name">Iniciante</span>
+                </div>
+                <div class="class-id">#03</div>
+            </div>
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-inter">Gi</span>
+                    <span class="class-name">Intermediário</span>
+                </div>
+                <div class="class-id">#03</div>
+            </div>
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-kids">Infantil</span>
+                    <span class="class-name">Kids 2 & 3</span>
+                </div>
+                <div class="class-id">#02</div>
+            </div>
+        </div>
+
+         <div id="d11" class="day-card">
+            <div class="date-header">Quinta, 11</div>
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-inter">Gi</span>
+                    <span class="class-name">Intermediário</span>
+                </div>
+                <div class="class-id">#04</div>
+            </div>
+            <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-iniciante">Gi</span>
+                    <span class="class-name">Iniciante</span>
+                </div>
+                <div class="class-id">#04</div>
+            </div>
+             <div class="class-item">
+                <div class="class-info">
+                    <span class="badge bg-nogi">Sem Kimono</span>
+                    <span class="class-name">NO-GI</span>
+                </div>
+                <div class="class-id">#02</div>
+            </div>
+        </div>
+
+        </div>
+
+    <div class="footer-line"></div>
+
+    <script>
+        const selector = document.getElementById('daySelect');
+        const cards = document.querySelectorAll('.day-card');
+
+        selector.addEventListener('change', function() {
+            // Remove active class
+            cards.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to target
+            const target = document.getElementById(this.value);
+            if(target) {
+                target.classList.add('active');
+                
+                // Leve scroll para focar no conteúdo se necessário
+                window.scrollTo({
+                    top: target.offsetTop - 100,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    </script>
+</body>
+</html>
